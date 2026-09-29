@@ -1,0 +1,14 @@
+# 密钥与配置（严禁提交）
+.env
+
+# 运行产物
+__pycache__/
+*.pyc
+logs/
+reports/
+data_cache/
+.streamlit/
+
+# 系统文件
+Thumbs.db
+.DS_Store
