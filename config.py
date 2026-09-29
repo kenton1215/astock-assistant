@@ -26,7 +26,7 @@ def _get_secret(name, default=""):
 TUSHARE_TOKEN = _get_secret("TUSHARE_TOKEN")
 DEEPSEEK_API_KEY = _get_secret("DEEPSEEK_API_KEY")
 DEEPSEEK_BASE_URL = _get_secret("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/")
-DEEPSEEK_MODEL = _get_secret("DEEPSEEK_MODEL", "deepseek-flash").strip()  # API模型ID: deepseek-flash(=V4.1-Flash) / deepseek-v4-pro
+DEEPSEEK_MODEL = _get_secret("DEEPSEEK_MODEL", "deepseek-v4.1-flash").strip()  # API模型ID: deepseek-flash(=V4.1-Flash) / deepseek-v4-pro
 TAVILY_API_KEY = _get_secret("TAVILY_API_KEY")
 
 # ---------- 账户系统（网页版多用户） ----------
@@ -36,6 +36,9 @@ AUTH = dict(
     free_trial_credits=5,     # 新注册赠送次数（用站长Key）
     daily_limit=30,           # 每人每日分析次数上限
     default_code_credits=10,  # 激活码默认次数
+    username_min=2,           # 用户名最少字符数（宽松策略，方便注册）
+    username_max=30,          # 用户名最多字符数
+    password_min=4,           # 密码最少位数
 )
 SUPABASE_URL = _get_secret("SUPABASE_URL")
 SUPABASE_KEY = _get_secret("SUPABASE_KEY")  # service_role key（仅服务端使用，勿泄露）

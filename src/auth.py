@@ -55,6 +55,18 @@ def _hash_pw(password, salt):
                                str(salt).encode(), 200_000).hex()
 
 
+def _validate_credentials(username, password):
+    """宽松注册校验：用户名2-30字符（支持中文，不含空白），密码≥4位"""
+    u = str(username or "").strip()
+    if not (AUTH["username_min"] <= len(u) <= AUTH["username_max"]):
+        return None, f"用户名需{AUTH['username_min']}-{AUTH['username_max']}个字符"
+    if any(ch.isspace() for ch in u):
+        return None, "用户名不能包含空格"
+    if len(password or "") < AUTH["password_min"]:
+        return None, f"密码至少{AUTH['password_min']}位"
+    return u, ""
+
+
 class BaseUserStore:
     def register(self, username, password):
         raise NotImplementedError
@@ -106,11 +118,10 @@ class JsonUserStore(BaseUserStore):
                 "holdings": [], "last_day": "", "daily_count": 0}
 
     def register(self, username, password):
-        u = str(username).strip().lower()
-        if not (3 <= len(u) <= 20) or not (u.replace("_", "").isalnum()):
-            return None, "用户名需3-20位字母/数字/下划线"
-        if len(password) < 6:
-            return None, "密码至少6位"
+        u, err = _validate_credentials(username, password)
+        if err:
+            return None, err
+        u = u.lower()
         if u in self.db["users"]:
             return None, "用户名已存在"
         user = self._new_user(u)
@@ -193,11 +204,10 @@ class SupabaseUserStore(BaseUserStore):
             log.warning("Supabase写入失败: %s", e)
 
     def register(self, username, password):
-        u = str(username).strip().lower()
-        if not (3 <= len(u) <= 20) or not (u.replace("_", "").isalnum()):
-            return None, "用户名需3-20位字母/数字/下划线"
-        if len(password) < 6:
-            return None, "密码至少6位"
+        u, err = _validate_credentials(username, password)
+        if err:
+            return None, err
+        u = u.lower()
         if self._row("users", "username", u):
             return None, "用户名已存在"
         salt = _secrets.token_hex(8)

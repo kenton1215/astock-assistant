@@ -135,7 +135,7 @@ with st.sidebar:
         with at2:
             with st.form("reg_form"):
                 ru = st.text_input("用户名", key="ru")
-                rp = st.text_input("密码（至少6位）", type="password", key="rp")
+                rp = st.text_input("密码（至少4位）", type="password", key="rp")
                 rp2 = st.text_input("确认密码", type="password", key="rp2")
                 if st.form_submit_button(f"注册（送{AUTH['free_trial_credits']}次免费体验）", use_container_width=True):
                     if rp != rp2:
