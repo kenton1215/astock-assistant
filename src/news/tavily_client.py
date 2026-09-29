@@ -63,9 +63,11 @@ def search_daily_news(date_str):
     results, seen = [], set()
     for tag, q in QUERIES:
         items = _search(f"{q} {date_str[:4]}-{date_str[4:6]}-{date_str[6:]}", 6, tag)
-        results.extend(items)
         for it in items:
-            seen.add(it["_key"])
+            key = _dedup_key(it.get("title", ""))
+            if key and key not in seen:  # 跨主题同题去重
+                seen.add(key)
+                results.append(it)
         time.sleep(1)
     results = results[:15]
     try:

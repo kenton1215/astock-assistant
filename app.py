@@ -527,6 +527,7 @@ if st.session_state.get("running"):
     with st.status("分析进行中…", expanded=True) as status:
         def cb(stage, detail):
             status.write(detail)
+        run_failed = False
         try:
             _k = st.session_state.get("run_llm", (None, None, None))
             _holdings = _holdings_of_user() if st.session_state.get("user") else None
@@ -536,8 +537,10 @@ if st.session_state.get("running"):
         except Exception as e:
             st.error(f"❌ 运行失败：{e}（详见 logs/astock.log）")
             res = None
+            run_failed = True
         if res is None:
-            status.update(label="今日非交易日或数据不可用", state="error", expanded=True)
+            status.update(label="❌ 运行失败（见上方错误）" if run_failed else "今日非交易日或数据不可用",
+                          state="error", expanded=True)
         else:
             status.update(label="分析完成 ✅", state="complete", expanded=False)
         st.session_state["result"] = res
