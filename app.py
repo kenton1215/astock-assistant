@@ -46,7 +46,13 @@ def _holdings_of_user():
 
 def _load_holdings_df():
     data = _holdings_of_user() if st.session_state.get("user") else load_holdings()
-    if not data:
+    # 防御：数据必须是列表（Supabase文本列返回JSON字符串时在此兜底）
+    if isinstance(data, str):
+        try:
+            data = json.loads(data)
+        except Exception:
+            data = []
+    if not isinstance(data, list) or not data:
         return pd.DataFrame(columns=["代码", "名称", "成本", "数量", "买入日期", "备注"])
     df = pd.DataFrame(data)
     df = df.rename(columns={"ts_code": "代码", "name": "名称", "cost": "成本",

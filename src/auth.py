@@ -216,12 +216,22 @@ class SupabaseUserStore(BaseUserStore):
         return user, "登录成功"
 
     def get_user(self, username):
-        return self._row("users", "username", str(username).strip().lower())
+        u = self._row("users", "username", str(username).strip().lower())
+        if u and isinstance(u.get("holdings"), str):
+            # Supabase文本列存的JSON字符串 → 转回列表（保持与本地库一致的行为）
+            try:
+                u["holdings"] = json.loads(u["holdings"])
+            except Exception:
+                u["holdings"] = []
+        return u
 
     def update_user(self, username, **fields):
         u = self.get_user(username)
         if u:
             u.update(fields)
+            # 列表 → JSON字符串后写入文本列
+            if isinstance(u.get("holdings"), list):
+                u["holdings"] = json.dumps(u["holdings"], ensure_ascii=False)
             self._upsert("users", u)
 
     def redeem_code(self, username, code):
